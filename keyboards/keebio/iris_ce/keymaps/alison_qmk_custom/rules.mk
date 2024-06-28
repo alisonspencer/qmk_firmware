@@ -3,8 +3,6 @@ SRC += features/achordion.c
 SRC += features/layer_lock.c
 SRC += features/select_word.c
 
-# SRC += defs/combos.c
-# SRC += defs/tap_dance.c
 
 CONSOLE_ENABLE = no
 COMMAND_ENABLE = no

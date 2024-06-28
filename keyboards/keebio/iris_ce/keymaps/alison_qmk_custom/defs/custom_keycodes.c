@@ -28,14 +28,13 @@ enum custom_keycodes {
 #define HOME_S RSFT_T(KC_S)
 
 
-
+// cut copy paste undo redo
 #define s_cut LGUI(KC_X)
 #define s_copy LGUI(KC_C)
 #define s_paste LGUI(KC_V)
 #define s_save LGUI(KC_S)
 #define s_undo LGUI(KC_Z)
 #define s_redo LSG(KC_Z)
-
 
 
 
@@ -50,20 +49,11 @@ enum custom_keycodes {
 #define TMP_FUNC OSL(_FN)
 
 
-#define CXCCCV LCTL(KC_C)
-#define H_ESC KC_ESC
+#define SHFT_SPC LT(_DVORAK_SHIFTED, KC_SPC)
+#define SHFT_ENT LT(_DVORAK_SHIFTED, KC_ENT)
+#define DV_SPC LT(_DVORAK_SHIFTED, KC_SPC) 
+#define DV_ENT LT(_DVORAK_SHIFTED, KC_ENT)
 
-
-
-#define SHFT_SPC KC_SPC
-#define SHFT_ENT KC_SPC
-#define DV_SPC KC_SPC
-#define DV_ENT KC_SPC
-
-// #define SHFT_SPC LT(_DVORAK_SHIFTED, KC_SPC)
-// #define SHFT_ENT LT(_DVORAK_SHIFTED, KC_ENT)
-// #define DV_SPC LT(_DVORAK_SHIFTED, KC_SPC) 
-// #define DV_ENT LT(_DVORAK_SHIFTED, KC_ENT)
 
 #define TO_QWR TO(_QWERTY)
 #define TO_LYR TO(_LAYERS)
