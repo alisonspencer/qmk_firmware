@@ -8,7 +8,8 @@
 // Complex custom keycodes (here to prevent circular referencing)
 enum custom_keycodes {
     LLOCK = SAFE_RANGE,  // https://getreuer.info/posts/keyboards/layer-lock/index.html
-    SELECT_WORD = SAFE_RANGE  // https://getreuer.info/posts/keyboards/select-word/index.html
+    SELECT_WORD,  // https://getreuer.info/posts/keyboards/select-word/index.html
+    BSP_DEL // https://github.com/rpbaptist/qmk_firmware/blob/master/keyboards/crkbd/keymaps/rpbaptist/keymap.c#L158
 };
 
 
@@ -42,17 +43,17 @@ enum custom_keycodes {
 #define GO_HOME TO(_DVORAK)
 
 #define TG_LYRS TT(_LAYERS)
-#define TG_NUM TG(_NUMPAD)
+#define TG_NUM TT(_NUMPAD)
 
 #define TMP_SYMB OSL(_SYMBOLS)
 #define TMP_BRKT OSL(_BRACKETS)
 #define TMP_FUNC OSL(_FN)
 
 
-#define SHFT_SPC LT(_DVORAK_SHIFTED, KC_SPC)
-#define SHFT_ENT LT(_DVORAK_SHIFTED, KC_ENT)
-#define DV_SPC LT(_DVORAK_SHIFTED, KC_SPC) 
-#define DV_ENT LT(_DVORAK_SHIFTED, KC_ENT)
+// #define SHFT_SPC LT(_DVORAK_SHIFTED, KC_SPC)
+// #define SHFT_ENT LT(_DVORAK_SHIFTED, KC_ENT)
+// #define DV_SPC LT(_DVORAK_SHIFTED, KC_SPC) 
+// #define DV_ENT LT(_DVORAK_SHIFTED, KC_ENT)
 
 
 #define TO_QWR TO(_QWERTY)

@@ -8,7 +8,7 @@ Establish general tap dance behaviours
 
 // define multi-tap/hold states
 typedef enum {
-    TD_NONE,
+    TD_NONE = 0,
     TD_UNKNOWN,
     TD_SINGLE_TAP,
     TD_SINGLE_HOLD,

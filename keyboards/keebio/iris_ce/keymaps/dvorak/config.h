@@ -5,14 +5,17 @@
 
 
 #undef DEBOUNCE
-#define DEBOUNCE 5
+#define DEBOUNCE 20
 
 
 #undef TAPPING_TERM
 // Configure the global tapping term (default: 200ms)
-#define TAPPING_TERM 224
+#define TAPPING_TERM 150
 // Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
 #define QUICK_TAP_TERM 0
+
+
+#define LAYER_LOCK_IDLE_TIMEOUT 60000  // Turn off after 60 seconds.
 
 
 #define COMBO_TERM 200
@@ -26,13 +29,12 @@
 
 #define SELECT_WORD_TIMEOUT 2000  // When idle, clear state after 2 seconds.
 
-
-// #define PERMISSIVE_HOLD
+#define PERMISSIVE_HOLD
 
 
 
 #define RGB_MATRIX_SLEEP
-#define RGB_MATRIX_TIMEOUT 30000  // 30s timeout in milliseconds
+#define RGB_MATRIX_TIMEOUT 60000  // 60s timeout in milliseconds
 
 #define BACKLIGHT_LEVELS 6  // number of levels your backlight will have (maximum 31 excluding off)
 #define BACKLIGHT_BREATHING  // enables backlight breathing
@@ -42,16 +44,11 @@
 
 
 #define USB_SUSPEND_WAKEUP_DELAY 0
-// #define FIRMWARE_VERSION u8"RXpQ4/AxEaE"
-// #define RAW_USAGE_PAGE 0xFF60
-// #define RAW_USAGE_ID 0x61
-// #define LAYER_STATE_32BIT
-// #define COMBO_COUNT 10
 
 
-
-
-
+#define TRI_LAYER_LOWER_LAYER 4
+#define TRI_LAYER_UPPER_LAYER 6
+#define TRI_LAYER_ADJUST_LAYER 11
 
 
 
