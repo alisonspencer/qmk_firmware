@@ -38,6 +38,9 @@ enum {
     , TD_SENTER
     , TD_SSPACE
     , TD_SPCDOT
+    , TD_SSPACEC
+    , TD_SENTERC
+
 
 };
 
@@ -48,7 +51,7 @@ enum custom_layers {
     , _DV_LEFT
     , _QWERTY
     , _LAYERS
-   //  , _MEDIA
+    , _MEDIA
     , _NUMPAD
     , _ARROWS
     , _SYMBOLS
@@ -63,6 +66,11 @@ enum custom_layers {
 #define CXPZS TD(TD_CXPZS)
 #define SPACEDANCE TD(TD_SSPACE)
 #define ENTDANCE TD(TD_SENTER)
+#define SPCDOT TD(TD_SPCDOT)
+#define KTAB TD(CT_KTAB)
+#define XESC TD(CT_XESC)
+#define BESC TD(CT_BESC)
+#define MTAB TD(CT_MTAB)
 
 
 // Define the keymap
@@ -74,9 +82,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├──────────────┼──────────────┼───────────┼────────────┼───────────────┼────────────┤                                   ├───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
      BSP_DEL,       HOME_A,        HOME_O,     HOME_E,      HOME_U,         HOME_I,                                          HOME_D,     HOME_H,    HOME_T,     HOME_N,    HOME_S,    TD(TD_MUND),    
   //├──────────────┼──────────────┼───────────┼────────────┼───────────────┼────────────┤                                   ├───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
-     TG_NUM,        KC_SCLN,       KC_Q,       KC_J,        TD(CT_KTAB),    TD(CT_XESC),                                     TD(CT_BESC), TD(CT_MTAB), KC_W,       KC_V,     KC_Z,      MO_BRK,
+     TG_NUM,        KC_SCLN,       KC_Q,       KC_J,        KTAB,           XESC,                                            BESC,       MTAB,       KC_W,       KC_V,     KC_Z,      MO_BRK,
   //├──────────────┼──────────────┼───────────┼────────────┼───────────────┼────────────┼────────────┐        ┌─────────────┼───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
-     TG_LYRS,       MO_ARR,        TM_BRK,      CXPZS,      XXXXXXX,       XXXXXXX,    TMP_SYMB,               TG_NUM,      CXPZS,       XXXXXXX,   XXXXXXX,   XXXXXXX,   TMP_SYMB,   TG_LYRS,    
+     TG_LYRS,       MO_ARR,        TMP_BRK,      CXPZS,      XXXXXXX,       XXXXXXX,    TMP_SYM,               TG_NUM,      CXPZS,       XXXXXXX,   XXXXXXX,   XXXXXXX,   TMP_SYM,   TG_LYRS,    
   //└──────────────┴──────────────┴───────────┴───┬────────┴───┬───────────┴───┬────────┴───┬────────┘        └───┬─────────┴───┬───────┴───────┬──┴──────────┬──────────┴──────────┴────────────┘
                                                     TG_LYRS,    SPACEDANCE,       ENTDANCE,                        MO_ARR,       ENTDANCE,       XXXXXXX
                                                // └────────────┴───────────────┴────────────┘                     └─────────────┴───────────────┴─────────────┘
@@ -84,15 +92,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   , [_DV_LEFT] = LAYOUT(
   //┌──────────────┬──────────────┬───────────┬────────────┬───────────────┬────────────┐                                   ┌───────────┬──────────┬───────────┬─────────┬──────────┬────────────┐
-     QK_GESC,       TD(DVL_QUL),  TD(DVL_COMR),TD(DVL_DOTC), TD(DVL_PG),    TD(DVL_YF),                                          XXXXXXX,    XXXXXXX,   KC_UP,      XXXXXXX,  XXXXXXX,   XXXXXXX,  
+     QK_GESC,       TD(DVL_QUL),  TD(DVL_COMR),TD(DVL_DOTC), TD(DVL_PG),    TD(DVL_YF),                                       XXXXXXX,    XXXXXXX,   KC_UP,      XXXXXXX,  XXXXXXX,   XXXXXXX,  
   //├──────────────┼──────────────┼───────────┼────────────┼───────────────┼────────────┤                                   ├───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
-     KC_BSPC,       TD(DVL_ID),   TD(DVL_UH),  TD(DVL_ET),   TD(DVL_ON),    TD(DVL_AS),                                          XXXXXXX,    KC_LEFT,   KC_DOWN,    KC_RIGHT, KC_LSFT,   KC_LALT,  
+     KC_BSPC,       TD(DVL_ID),   TD(DVL_UH),  TD(DVL_ET),   TD(DVL_ON),    TD(DVL_AS),                                       XXXXXXX,    KC_LEFT,   KC_DOWN,    KC_RIGHT, KC_LSFT,   KC_LALT,  
   //├──────────────┼──────────────┼───────────┼────────────┼───────────────┼────────────┤                                   ├───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
-     TG_NUM,        TD(DVL_XB),   TD(DVL_KM),  TD(DVL_JW),   TD(DVL_QV),    TD(DVL_SCNZ),                                        XXXXXXX,    XXXXXXX,   XXXXXXX,    XXXXXXX,  LSA(KC_TAB), XXXXXXX,   
+     _______,       TD(DVL_XB),   TD(DVL_KM),  TD(DVL_JW),   TD(DVL_QV),    TD(DVL_SCNZ),                                     XXXXXXX,    XXXXXXX,   XXXXXXX,    XXXXXXX,  LSA(KC_TAB), XXXXXXX,   
   //├──────────────┼──────────────┼───────────┼────────────┼───────────────┼────────────┼────────────┐        ┌─────────────┼───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
-     _______,       _______,       _______,    _______,     _______,        _______,     TMP_SYMB,             XXXXXXX,      XXXXXXX,    XXXXXXX,   XXXXXXX,    XXXXXXX,  XXXXXXX,   _______, 
+     _______,       _______,       _______,    _______,     _______,        _______,     _______,              XXXXXXX,      XXXXXXX,    XXXXXXX,   XXXXXXX,    XXXXXXX,  XXXXXXX,   _______, 
   //└──────────────┴──────────────┴───────────┴───┬────────┴───┬───────────┴───┬────────┴───┬────────┘        └───┬─────────┴───┬───────┴───────┬──┴──────────┬──────────┴──────────┴────────────┘
-                                                    _______,     TD_SSPACE,       TD_SENTER,                          XXXXXXX,      XXXXXXX,        XXXXXXX
+                                                    _______,     _______,        _______,                          XXXXXXX,      XXXXXXX,        XXXXXXX
                                                // └────────────┴───────────────┴────────────┘                     └─────────────┴───────────────┴─────────────┘
    )
 
@@ -104,9 +112,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
      KC_LCTL, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                               KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    TG_LYRS,          TG_NUM,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+     TG_LYRS, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    GO_HOME,          TG_NUM,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                    _______, GO_HOME, KC_SPC,                    KC_ENT,  KC_LSFT, KC_RALT
+                                    _______, KC_LSFT, KC_SPC,                    KC_ENT,  KC_LSFT, KC_RALT
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   )
 
@@ -114,55 +122,55 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //┌──────────────┬──────────────┬──────────────┬──────────────┬───────────────┬────────────┐                                   ┌─────────────┬──────────────┬────────────┬────────────┬─────────────┬────────────┐
      XXXXXXX,       XXXXXXX,       TO(_DV_LEFT),  TO(_SYMBOLS),  TO(_BRACKETS),  XXXXXXX,                                         XXXXXXX,      KC_VOLD,       KC_MUTE,     KC_VOLU,      XXXXXXX,      XXXXXXX,    
   //├──────────────┼──────────────┼──────────────┼──────────────┼───────────────┼────────────┤                                   ├─────────────┼──────────────┼────────────┼────────────┼─────────────┼────────────┤
-     XXXXXXX,       XXXXXXX,       TO(_QWERTY),   TO(_ARROWS),   TO(_NUMPAD),    TO(_FN),                                          XXXXXXX,      KC_MPRV,       KC_MNXT,     KC_MPLY,      XXXXXXX,      XXXXXXX,    
+     XXXXXXX,       XXXXXXX,       TO(_QWERTY),   TO(_ARROWS),   TO(_NUMPAD),    TO(_FN),                                         XXXXXXX,      KC_MPRV,       KC_MNXT,     KC_MPLY,      XXXXXXX,      XXXXXXX,    
   //├──────────────┼──────────────┼──────────────┼──────────────┼───────────────┼────────────┤                                   ├─────────────┼──────────────┼────────────┼────────────┼─────────────┼────────────┤
-     XXXXXXX,       XXXXXXX,       KC_VOLD,       KC_MUTE,       KC_VOLU,        XXXXXXX,                                         XXXXXXX,       KC_BRID,      XXXXXXX,     KC_BRIU,      XXXXXXX,      XXXXXXX,    
+     XXXXXXX,       XXXXXXX,       KC_VOLD,       KC_MUTE,       KC_VOLU,        XXXXXXX,                                         XXXXXXX,      KC_BRID,       XXXXXXX,     KC_BRIU,      XXXXXXX,      XXXXXXX,    
   //├──────────────┼──────────────┼──────────────┼──────────────┼───────────────┼────────────┼────────────┐        ┌─────────────┼─────────────┼──────────────┼────────────┼────────────┼─────────────┼────────────┤
-     XXXXXXX,       XXXXXXX,       KC_MPRV,       KC_MNXT,        KC_MPLY,       XXXXXXX,     XXXXXXX,              XXXXXXX,      XXXXXXX,      XXXXXXX,       XXXXXXX,     XXXXXXX,      XXXXXXX,      XXXXXXX,
+     XXXXXXX,       XXXXXXX,       KC_MPRV,       KC_MNXT,       KC_MPLY,        XXXXXXX,     XXXXXXX,              XXXXXXX,      XXXXXXX,      XXXXXXX,       XXXXXXX,     XXXXXXX,      XXXXXXX,      XXXXXXX,
   //└──────────────┴──────────────┴──────────────┴───┬──────────┴───┬───────────┴───┬────────┴───┬────────┘        └───┬─────────┴─────┬───────┴────────┬─────┴───────────┬─────────────┴─────────────┴────────────┘
                                                       _______,       XXXXXXX,        XXXXXXX,                           XXXXXXX,        XXXXXXX,        XXXXXXX
                                                   // └──────────────┴───────────────┴────────────┘                     └───────────────┴───────────────┴─────────────────┘
   )
 
-//   , [_MEDIA] = LAYOUT(
-//   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
-//      _______, _______, KC_VOLD, KC_MUTE, KC_VOLU, _______,                            _______, _______, _______, _______, _______, _______, 
-//   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-//      _______, _______, KC_MPRV, KC_MNXT, KC_MPLY, _______,                            _______, _______, _______, _______, _______, _______, 
-//   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-//      _______, _______, KC_BRID, _______, KC_BRIU, _______,                            _______, _______, _______, _______, _______, _______, 
-//   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-//      _______, _______, _______, _______, _______, _______, _______,          _______, _______, _______, _______, _______, _______, _______, 
-//   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-//                                     _______, _______, _______,                   _______, _______, _______ 
-//                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
-//   )
+  , [_MEDIA] = LAYOUT(
+  //┌────────┬────────┬────────┬────────┬────────┬────────┐                           ┌────────┬────────┬────────┬────────┬────────┬────────┐
+     _______, _______, KC_VOLD, KC_MUTE, KC_VOLU, _______,                             BL_TOGG, BL_BRTG, BL_DOWN,  BL_UP,  XXXXXXX,  XXXXXXX,
+  //├────────┼────────┼────────┼────────┼────────┼────────┤                           ├────────┼────────┼────────┼────────┼────────┼────────┤
+     _______, _______, KC_MPRV, KC_MNXT, KC_MPLY, _______,                             RGB_TOG, RGB_M_B, RGB_M_P, RGB_MOD, RGB_HUI, RGB_VAI,
+  //├────────┼────────┼────────┼────────┼────────┼────────┤                           ├────────┼────────┼────────┼────────┼────────┼────────┤
+     _______, _______, KC_BRID, _______, KC_BRIU, _______,                              XXXXXXX, XXXXXXX, XXXXXXX, RGB_SPI, RGB_SAI, XXXXXXX,
+  //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐         ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
+     _______, _______, _______, _______, _______, _______, _______,           XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
+  //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘         └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
+                                    _______, _______, _______,                    XXXXXXX, KC_LSFT, XXXXXXX 
+                                // └────────┴────────┴────────┘                  └────────┴────────┴────────┘
+  )
 
   , [_NUMPAD] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                       ┌────────┬────────┬────────┬────────┬────────┬────────┐
-     QK_GESC, XXXXXXX,   KC_7,    KC_8,   KC_9,   XXXXXXX,                         XXXXXXX, KC_HOME, KC_UP,   KC_END,  XXXXXXX, XXXXXXX, 
+     QK_GESC, XXXXXXX,   KC_7,   KC_8,   KC_9,   XXXXXXX,                          XXXXXXX, KC_HOME, KC_UP,   KC_END,  XXXXXXX, XXXXXXX, 
   //├────────┼────────┼────────┼────────┼────────┼────────┤                       ├────────┼────────┼────────┼────────┼────────┼────────┤
      KC_BSPC,  KC_0,    KC_4,    KC_5,    KC_6,   KC_EQL,                          XXXXXXX, KC_LEFT, KC_DOWN, KC_RIGHT, SC_LSPO, SC_RAPC,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                       ├────────┼────────┼────────┼────────┼────────┼────────┤
-     XXXXXXX, TD(TD_SPCDOT),KC_1, KC_2,    KC_3,   XXXXXXX,                    XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, LSA(KC_TAB), XXXXXXX, 
+     _______, SPCDOT,   KC_1,    KC_2,    KC_3,   XXXXXXX,                          XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, LSA(KC_TAB), XXXXXXX, 
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐     ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
-     GO_HOME, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
+     GO_HOME, XXXXXXX, XXXXXXX, KC_DOT,  KC_0,    RSA(KC_TAB), XXXXXXX,       _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘     └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                    XXXXXXX, XXXXXXX, XXXXXXX,               RSA(KC_TAB), _______, XXXXXXX 
+                                    XXXXXXX, SPACEDANCE,ENTDANCE,             RSA(KC_TAB),  ENTDANCE, XXXXXXX 
                                 // └────────┴────────┴────────┘              └────────┴────────┴────────┘
   )
 
   , [_ARROWS] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐   
-     KC_BSPC, XXXXXXX, KC_END,  KC_UP,  KC_HOME, XXXXXXX,                            XXXXXXX,   KC_7,    KC_8,    KC_9,  XXXXXXX,  XXXXXXX,   
+     KC_BSPC, XXXXXXX, KC_END,  KC_UP,  KC_HOME, XXXXXXX,                             XXXXXXX,   KC_7,    KC_8,    KC_9,  XXXXXXX,  XXXXXXX,   
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤   
      SC_LAPO, SC_RSPC, KC_LEFT, KC_DOWN, KC_RIGHT,XXXXXXX,                            XXXXXXX,   KC_4,    KC_5,    KC_6,    KC_0,   KC_BSPC,   
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤   
-     XXXXXXX, LSA(KC_TAB), XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,                       XXXXXXX,   KC_1,    KC_2,    KC_3,  TD(TD_SPCDOT), XXXXXXX,    
+     _______, LSA(KC_TAB), XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,                       XXXXXXX,   KC_1,    KC_2,    KC_3,  SPCDOT, XXXXXXX,    
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤   
-     GO_HOME, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    
+     GO_HOME, _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          _______, XXXXXXX, RSA(KC_TAB), KC_DOT, KC_0,  XXXXXXX, XXXXXXX,    
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘   
-                                    XXXXXXX, _______, SC_SENT,                   _______, XXXXXXX, XXXXXXX                                     
+                                    XXXXXXX, SPACEDANCE,ENTDANCE,                _______,  ENTDANCE, XXXXXXX                                     
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘                                   
   )
 
@@ -210,17 +218,31 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   , [_BRACKETS] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
-     XXXXXXX, XXXXXXX, KC_RCBR, KC_RBRC, KC_RPRN, XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
+     XXXXXXX, XXXXXXX, KC_RCBR, KC_RBRC, KC_RPRN, XXXXXXX,                            XXXXXXX, KC_RPRN, KC_RBRC, KC_RCBR, XXXXXXX, XXXXXXX, 
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_BSPC, KC_LABK, KC_LCBR, KC_LBRC, KC_LPRN, XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+     KC_BSPC, KC_LABK, KC_LCBR, KC_LBRC, KC_LPRN, XXXXXXX,                            XXXXXXX, KC_LPRN, KC_LBRC, KC_LCBR, KC_LABK, KC_BSPC,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     XXXXXXX, KC_RABK, XXXXXXX, XXXXXXX, X_ESC,   XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
+     XXXXXXX, KC_RABK, XXXXXXX, XXXXXXX, X_ESC,   XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_RABK, XXXXXXX, 
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
      GO_HOME, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
                                     XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX 
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   )
+
+//   , [_BRACKETS] = LAYOUT(
+//   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
+//      XXXXXXX, XXXXXXX, KC_RCBR, KC_RBRC, KC_RPRN, XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
+//   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
+//      KC_BSPC, KC_LABK, KC_LCBR, KC_LBRC, KC_LPRN, XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+//   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
+//      XXXXXXX, KC_RABK, XXXXXXX, XXXXXXX, X_ESC,   XXXXXXX,                            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
+//   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
+//      GO_HOME, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
+//   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
+//                                     XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX 
+//                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
+//   )
 
   , [_FN] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
@@ -238,15 +260,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   , [_SHORTCUTS] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐
-     QK_GESC, XXXXXXX,   KC_F7,  KC_F8,   KC_F9,   KC_F10,                            BL_TOGG, BL_BRTG, BL_DOWN,  BL_UP,  XXXXXXX,  QK_BOOT, 
+     XXXXXXX, XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                           XXXXXXX, XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     KC_BSPC,  XXXXXXX, KC_F4,   KC_F5,   KC_F6,   KC_F11,                            RGB_TOG, RGB_M_B, RGB_M_P, RGB_MOD, RGB_HUI, RGB_VAI,
+     XXXXXXX, XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                           XXXXXXX, XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤
-     XXXXXXX, XXXXXXX,   KC_F1,    KC_F2,  KC_F3,   KC_F12,                            XXXXXXX, XXXXXXX, XXXXXXX, RGB_SPI, RGB_SAI, XXXXXXX, 
+     XXXXXXX, XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                           XXXXXXX, XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐        ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
      GO_HOME, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,          XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                    XXXXXXX, XXXXXXX, GO_HOME,                   XXXXXXX, KC_LSFT, XXXXXXX 
+                                    XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX 
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘
   )
 
@@ -358,7 +380,6 @@ Define tap dances
 
 
 // TD_CXPZS: Copy, Cut, Paste, Save, Undo, Redo
-// Create an instance of 'td_tap_t' for the 'cxpzs' tap dance.
 static td_tap_t cxpzs_state = {
     .is_press_action = true,
     .state = TD_NONE
@@ -393,10 +414,7 @@ void cxpzs_reset(tap_dance_state_t *state, void *user_data) {
     cxpzs_state.state = TD_NONE;
 }
 
-
-
 // TD_MUND: Minus, underscore, momentary switch to symbols
-// Create an instance of 'td_tap_t' for this tap dance.
 static td_tap_t mund_state = {
     .is_press_action = true,
     .state = TD_NONE
@@ -427,9 +445,7 @@ void mund_reset(tap_dance_state_t *state, void *user_data) {
     mund_state.state = TD_NONE;
 }
 
-
-// TD_SENTER: Shifted dvorak on hold, enter on tap. shift-enter on double tap. 
-// Create an instance of 'td_tap_t' for this tap dance.
+// TD_SENTER: Shift on hold, enter on tap. shift-enter on double tap. 
 static td_tap_t  dvsenter_state = {
     .is_press_action = true,
     .state = TD_NONE
@@ -461,10 +477,7 @@ void dvsenter_reset(tap_dance_state_t *state, void *user_data) {
     dvsenter_state.state = TD_NONE;
 }
 
-
-
-// TD_SSPACE: Shifted dvorak on hold, enter on tap. shift-enter on double tap. 
-// Create an instance of 'td_tap_t' for this tap dance.
+// TD_SSPACE: Shift on hold, enter on tap. shift-enter on double tap. 
 static td_tap_t dvsspace_state = {
     .is_press_action = true,
     .state = TD_NONE
@@ -496,10 +509,8 @@ void dvsspace_reset(tap_dance_state_t *state, void *user_data) {
     dvsspace_state.state = TD_NONE;
 }
 
-
 // TD_SDOTCOM: Shifted dvorak on hold, enter on tap. shift-enter on double tap. 
-// Create an instance of 'td_tap_t' for this tap dance.
-static td_tap_t sdotcom_state = {
+static td_tap_t sdotcom_state = {  // Create an instance of 'td_tap_t' for this tap dance.
     .is_press_action = true,
     .state = TD_NONE
 };
@@ -529,10 +540,8 @@ void sdotcom_reset(tap_dance_state_t *state, void *user_data) {
     sdotcom_state.state = TD_NONE;
 }
 
-
-// TD_SENTER: Shifted dvorak on hold, enter on tap. shift-enter on double tap. 
-// Create an instance of 'td_tap_t' for this tap dance.
-static td_tap_t  entlyr_state = {
+// TD_ENTLYR: Shifted dvorak on hold, enter on tap. shift-enter on double tap. 
+static td_tap_t  entlyr_state = {  // Create an instance of 'td_tap_t' for this tap dance.
     .is_press_action = true,
     .state = TD_NONE
 };
@@ -547,13 +556,82 @@ void entlyr_finished(tap_dance_state_t *state, void *user_data) {
         // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
         // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
         case TD_DOUBLE_SINGLE_TAP: tap_code16(KC_ENTER); register_code16(KC_ENTER); break;
-        case TD_TRIPLE_TAP: register_code16(s_undo); break;  
+        case TD_TRIPLE_TAP: register_code16(OSL(_BRACKETS)); break;  
         case TD_TRIPLE_HOLD: register_code16(MO(_ARROWS)); break;  
         default: break;
     }
 }
 void entlyr_reset(tap_dance_state_t *state, void *user_data) {
     switch (entlyr_state.state) {
+        case TD_SINGLE_TAP: unregister_code16(KC_ENTER); break;
+        case TD_SINGLE_HOLD: unregister_code16(MO(_ARROWS)); break;
+        case TD_DOUBLE_TAP: unregister_code16(KC_SPACE); break;
+        case TD_DOUBLE_HOLD: unregister_code16(MO(_LAYERS)); break;
+        case TD_DOUBLE_SINGLE_TAP: unregister_code16(KC_ENTER); break;
+        case TD_TRIPLE_TAP: unregister_code16(OSL(_BRACKETS)); break;
+        case TD_TRIPLE_HOLD: unregister_code16(MO(_ARROWS)); break;
+        default: break;
+    }
+    entlyr_state.state = TD_NONE;
+}
+
+// TD_SSPACEC: Shifted dvorak layer on hold, enter on tap. shift-enter on double tap.
+static td_tap_t sspacec_state = {   
+// Create an instance of 'td_tap_t' for this tap dance.
+    .is_press_action = true,
+    .state = TD_NONE
+};
+void sspacec_finished(tap_dance_state_t *state, void *user_data) {
+    sspacec_state.state = cur_dance(state);
+    switch (sspacec_state.state) {
+        case TD_SINGLE_TAP: register_code16(KC_SPC); break;  
+        case TD_SINGLE_HOLD: register_code16(MO(_DVORAK_SHIFTED)); break;  
+        case TD_DOUBLE_TAP: register_code16(KC_ENTER); break;  
+        case TD_DOUBLE_HOLD: register_code16(LSFT(KC_ENTER)); break;  
+        case TD_DOUBLE_SINGLE_TAP: tap_code16(KC_SPC); register_code16(KC_SPC); break;
+        case TD_TRIPLE_TAP: register_code16(KC_LPRN); break;  
+        case TD_TRIPLE_HOLD: register_code16(KC_RIGHT); break;  
+        default: break;
+    }
+}
+void sspacec_reset(tap_dance_state_t *state, void *user_data) {
+    switch (sspacec_state.state) {
+        case TD_SINGLE_TAP: unregister_code16(KC_SPC); break;
+        case TD_SINGLE_HOLD: unregister_code16(MO(_DVORAK_SHIFTED)); break;
+        case TD_DOUBLE_TAP: unregister_code16(KC_ENTER); break;
+        case TD_DOUBLE_HOLD: unregister_code16(LSFT(KC_ENTER)); break;
+        case TD_DOUBLE_SINGLE_TAP: unregister_code16(KC_SPC); break;
+        case TD_TRIPLE_TAP: unregister_code16(KC_LPRN); break;
+        case TD_TRIPLE_HOLD: unregister_code16(KC_RIGHT); break;
+        default: break;
+    }
+    sspacec_state.state = TD_NONE;
+}
+
+// TD_SENTERC: Shifted dvorak on hold, enter on tap. shift-enter on double tap.  
+static td_tap_t  senterc_state = {  
+// Create an instance of 'td_tap_t' for this tap dance.
+    .is_press_action = true,
+    .state = TD_NONE
+};
+void senterc_finished(tap_dance_state_t *state, void *user_data) {
+    senterc_state.state = cur_dance(state);
+    switch (senterc_state.state) {
+        case TD_SINGLE_TAP: register_code16(KC_ENTER); break;  
+        case TD_SINGLE_HOLD: register_code16(MO(_DVORAK_SHIFTED)); break;  
+        case TD_DOUBLE_TAP: register_code16(KC_SPACE); break;  
+        case TD_DOUBLE_HOLD: register_code16(LSFT(KC_ENTER)); break;  
+        // Last case is for fast typing. Assuming your key is `f`:
+        // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
+        // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
+        case TD_DOUBLE_SINGLE_TAP: tap_code16(KC_ENTER); register_code16(KC_ENTER); break;
+        case TD_TRIPLE_TAP: register_code16(s_undo); break;  
+        case TD_TRIPLE_HOLD: register_code16(MO(_ARROWS)); break;  
+        default: break;
+    }
+}
+void senterc_reset(tap_dance_state_t *state, void *user_data) {
+    switch (senterc_state.state) {
         case TD_SINGLE_TAP: unregister_code16(KC_ENTER); break;
         case TD_SINGLE_HOLD: unregister_code16(MO(_DVORAK_SHIFTED)); break;
         case TD_DOUBLE_TAP: unregister_code16(KC_SPACE); break;
@@ -563,45 +641,8 @@ void entlyr_reset(tap_dance_state_t *state, void *user_data) {
         case TD_TRIPLE_HOLD: unregister_code16(MO(_ARROWS)); break;
         default: break;
     }
-    entlyr_state.state = TD_NONE;
+    senterc_state.state = TD_NONE;
 }
-
-
-// // TD_: Shifted dvorak on hold, enter on tap. shift-enter on double tap. 
-// // Create an instance of 'td_tap_t' for this tap dance.
-// static td_tap_t dvsspace_state = {
-//     .is_press_action = true,
-//     .state = TD_NONE
-// };
-// void dvsspace_finished(tap_dance_state_t *state, void *user_data) {
-//     dvsspace_state.state = cur_dance(state);
-//     switch (dvsspace_state.state) {
-//         case TD_SINGLE_TAP: register_code16(KC_SPC); break;  
-//         case TD_SINGLE_HOLD: register_code16(MO(_DVORAK_SHIFTED)); break;  
-//         case TD_DOUBLE_TAP: register_code16(KC_ENTER); break;  
-//         case TD_DOUBLE_HOLD: register_code16(LSFT(KC_ENTER)); break;  
-//         case TD_DOUBLE_SINGLE_TAP: tap_code16(KC_SPC); register_code16(KC_SPC); break;
-//         case TD_TRIPLE_TAP: register_code16(KC_LPRN); break;  
-//         case TD_TRIPLE_HOLD: register_code16(KC_RIGHT); break;  
-//         default: break;
-//     }
-// }
-// void dvsspace_reset(tap_dance_state_t *state, void *user_data) {
-//     switch (dvsspace_state.state) {
-//         case TD_SINGLE_TAP: unregister_code16(KC_ENT); break;
-//         case TD_SINGLE_HOLD: unregister_code16(MO(_DVORAK_SHIFTED)); break;
-//         case TD_DOUBLE_TAP: unregister_code16(KC_ENTER); break;
-//         case TD_DOUBLE_HOLD: unregister_code16(LSFT(KC_ENTER)); break;
-//         case TD_DOUBLE_SINGLE_TAP: unregister_code16(KC_SPC); break;
-//         case TD_TRIPLE_TAP: unregister_code16(KC_LPRN); break;
-//         case TD_TRIPLE_HOLD: unregister_code16(KC_RIGHT); break;
-//         default: break;
-//     }
-//     dvsspace_state.state = TD_NONE;
-// }
-
-
-
 
 // static tap osltapdance_state = {
 //   .is_press_action = true,
@@ -647,7 +688,7 @@ Define tap dance actions
 tap_dance_action_t tap_dance_actions[] = {
 
    //  tap-holds for left handed only dvorak layout
-    [DVL_QUL] = ACTION_TAP_DANCE_TAP_HOLD(KC_QUOTE, KC_L)      
+      [DVL_QUL] = ACTION_TAP_DANCE_TAP_HOLD(KC_QUOTE, KC_L)      
     , [DVL_COMR] = ACTION_TAP_DANCE_TAP_HOLD(KC_COMMA, KC_R)   
     , [DVL_DOTC] = ACTION_TAP_DANCE_TAP_HOLD(KC_DOT, KC_C)      
     , [DVL_PG] = ACTION_TAP_DANCE_TAP_HOLD(KC_P, KC_G)          
@@ -668,7 +709,7 @@ tap_dance_action_t tap_dance_actions[] = {
     , [CT_XESC] = ACTION_TAP_DANCE_TAP_HOLD(KC_X, KC_ESC)
     , [CT_BESC] = ACTION_TAP_DANCE_TAP_HOLD(KC_B, KC_ESC)
     , [CT_MTAB] = ACTION_TAP_DANCE_TAP_HOLD(KC_M, KC_TAB)
-
+    
     // complex tap dances
     , [TD_CXPZS] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, cxpzs_finished, cxpzs_reset)
     , [TD_MUND] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, mund_finished, mund_reset)
@@ -676,6 +717,9 @@ tap_dance_action_t tap_dance_actions[] = {
     , [TD_SENTER] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dvsenter_finished, dvsenter_reset)
     , [TD_SSPACE] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dvsspace_finished, dvsspace_reset)
     , [TD_SPCDOT] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, sdotcom_finished, sdotcom_reset)
+
+    , [TD_SSPACEC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, sspacec_finished, sspacec_reset)
+    , [TD_SENTERC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, senterc_finished, senterc_reset)
 
 
    //  , [ALT_OSL1]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, osl_tapdance_finished, osl_tapdance_reset)

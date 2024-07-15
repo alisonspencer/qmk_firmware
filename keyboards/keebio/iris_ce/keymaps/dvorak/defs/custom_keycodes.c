@@ -45,9 +45,6 @@ enum custom_keycodes {
 #define TG_LYRS TT(_LAYERS)
 #define TG_NUM TT(_NUMPAD)
 
-#define TMP_SYMB OSL(_SYMBOLS)
-#define TMP_BRKT OSL(_BRACKETS)
-#define TMP_FUNC OSL(_FN)
 
 
 // #define SHFT_SPC LT(_DVORAK_SHIFTED, KC_SPC)
@@ -72,11 +69,11 @@ enum custom_keycodes {
 #define MO_BRK MO(_BRACKETS)
 #define MO_FN MO(_FN)
 
-#define TM_QWR OSL(_QWERTY)
-#define TM_LYR OSL(_LAYERS)
-#define TM_MED OSL(_MEDIA)
-#define TM_ARR OSL(_ARROWS)
-#define TM_SYM OSL(_SYMBOLS)
-#define TM_BRK OSL(_BRACKETS)
-#define TM_FN OSL(_FN)
+#define TMP_QWR OSL(_QWERTY)
+#define TMP_LYR OSL(_LAYERS)
+#define TMP_MED OSL(_MEDIA)
+#define TMP_ARR OSL(_ARROWS)
+#define TMP_SYM OSL(_SYMBOLS)
+#define TMP_BRK OSL(_BRACKETS)
+#define TMP_FN OSL(_FN)
 
