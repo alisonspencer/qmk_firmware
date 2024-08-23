@@ -41,6 +41,15 @@ enum {
     , TD_SSPACEC
     , TD_SENTERC
 
+    , TD_K_TAB
+    , TD_X_ESC
+    , TD_B_ESC
+    , TD_M_TAB
+
+
+    // one-shot tap dances
+    , ALT_OSL1
+
 
 };
 
@@ -48,10 +57,13 @@ enum {
 // DEFINE LAYERS
 enum custom_layers {
     _DVORAK
+    , _DVORAK_SHIFTED
     , _DV_LEFT
     , _QWERTY
     , _LAYERS
     , _MEDIA
+    , _NUM_ARR
+    , _ARR_NUM
     , _NUMPAD
     , _ARROWS
     , _SYMBOLS
@@ -66,13 +78,15 @@ enum custom_layers {
 #define CXPZS TD(TD_CXPZS)
 #define SPACEDANCE TD(TD_SSPACE)
 #define ENTDANCE TD(TD_SENTER)
+// #define SPACEDANCE TD(TD_SSPACEC)
+// #define ENTDANCE TD(TD_SENTERC)
 #define SPCDOT TD(TD_SPCDOT)
-#define KTAB TD(CT_KTAB)
-#define XESC TD(CT_XESC)
-#define BESC TD(CT_BESC)
-#define MTAB TD(CT_MTAB)
+#define KTAB TD(TD_K_TAB)
+#define XESC TD(TD_X_ESC)
+#define BESC TD(TD_B_ESC)
+#define MTAB TD(TD_M_TAB)
 
-
+ 
 // Define the keymap
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -83,11 +97,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      BSP_DEL,       HOME_A,        HOME_O,     HOME_E,      HOME_U,         HOME_I,                                          HOME_D,     HOME_H,    HOME_T,     HOME_N,    HOME_S,    TD(TD_MUND),    
   //├──────────────┼──────────────┼───────────┼────────────┼───────────────┼────────────┤                                   ├───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
      TG_NUM,        KC_SCLN,       KC_Q,       KC_J,        KTAB,           XESC,                                            BESC,       MTAB,       KC_W,       KC_V,     KC_Z,      MO_BRK,
-  //├──────────────┼──────────────┼───────────┼────────────┼───────────────┼────────────┼────────────┐        ┌─────────────┼───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
+  //├──────────────┼────────────;──┼───────────┼────────────┼───────────────┼────────────┼────────────┐        ┌─────────────┼───────────┼──────────┼───────────┼─────────┼──────────┼────────────┤
      TG_LYRS,       MO_ARR,        TMP_BRK,      CXPZS,      XXXXXXX,       XXXXXXX,    TMP_SYM,               TG_NUM,      CXPZS,       XXXXXXX,   XXXXXXX,   XXXXXXX,   TMP_SYM,   TG_LYRS,    
   //└──────────────┴──────────────┴───────────┴───┬────────┴───┬───────────┴───┬────────┴───┬────────┘        └───┬─────────┴───┬───────┴───────┬──┴──────────┬──────────┴──────────┴────────────┘
-                                                    TG_LYRS,    SPACEDANCE,       ENTDANCE,                        MO_ARR,       ENTDANCE,       XXXXXXX
+                                                    TG_LYRS,    ENTDANCE,       SPACEDANCE,                          ENTDANCE,     MO_ARR,        XXXXXXX
                                                // └────────────┴───────────────┴────────────┘                     └─────────────┴───────────────┴─────────────┘
+   )
+
+  , [_DVORAK_SHIFTED] = LAYOUT(;
+  //┌─────────────────┬────────────────┬───────────────┬─────────────────┬────────────────┬─────────────────┐                                     ┌────────────────┬─────────────────┬───────────────┬─────────────────┬─────────────────┬──────────────┐
+     LSFT(KC_TAB),     KC_DQUO,         KC_LABK,        KC_RABK,          LSFT(KC_P),      LSFT(KC_Y),                                              LSFT(KC_F),     LSFT(KC_G),       LSFT(KC_C),      LSFT(KC_R),        LSFT(KC_L),        _______,  
+  //├─────────────────┼────────────────┼───────────────┼─────────────────┼────────────────┼─────────────────┤                                     ├────────────────┼─────────────────┼───────────────┼─────────────────┼─────────────────┼──────────────┤
+     KC_DELETE,        LSFT(KC_A),      LSFT(KC_O),     LSFT(KC_E),       LSFT(KC_U),      LSFT(KC_I),                                              LSFT(KC_D),     LSFT(KC_H),       LSFT(KC_T),     LSFT(KC_N),        LSFT(KC_S),      KC_UNDERSCORE,   
+  //├─────────────────┼────────────────┼───────────────┼─────────────────┼────────────────┼─────────────────┤                                     ├────────────────┼─────────────────┼───────────────┼─────────────────┼─────────────────┼──────────────┤
+     TMP_FN,           KC_COLN,         LSFT(KC_Q),     LSFT(KC_J),       LSFT(KC_K),      LSFT(KC_X),                                              LSFT(KC_B),     LSFT(KC_M),       LSFT(KC_W),      LSFT(KC_V),        LSFT(KC_Z),        _______,  
+  //├─────────────────┼────────────────┼───────────────┼─────────────────┼────────────────┼─────────────────┼──────────────┐        ┌─────────────┼────────────────┼─────────────────┼───────────────┼─────────────────┼─────────────────┼──────────────┤
+     GO_HOME,          TMP_BRK,          _______,        _______,          _______,         _______,          _______,                _______,      _______,         _______,          _______,         _______,           _______,           _______,  
+  //└─────────────────┴────────────────┴───────────────┴────────┬────────┴──────┬──────┴───┬────────────────┴┬─────────────┘        └───┬─────────┴─┬─────────────┬─┴─────────────┬──┴───────────────┴─────────────────┴─────────────────┴──────────────┘
+                                                                 _______,         _______,       _______,                                 _______,     _______,       _______       
+                                                             // └───────────────┴──────────┴─────────────────┘                          └───────────┴─────────────┴───────────────┘
    )
 
   , [_DV_LEFT] = LAYOUT(
@@ -146,7 +174,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                 // └────────┴────────┴────────┘                  └────────┴────────┴────────┘
   )
 
-  , [_NUMPAD] = LAYOUT(
+  , [_NUM_ARR] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                       ┌────────┬────────┬────────┬────────┬────────┬────────┐
      QK_GESC, XXXXXXX,   KC_7,   KC_8,   KC_9,   XXXXXXX,                          XXXXXXX, KC_HOME, KC_UP,   KC_END,  XXXXXXX, XXXXXXX, 
   //├────────┼────────┼────────┼────────┼────────┼────────┤                       ├────────┼────────┼────────┼────────┼────────┼────────┤
@@ -156,11 +184,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐     ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
      GO_HOME, XXXXXXX, XXXXXXX, KC_DOT,  KC_0,    RSA(KC_TAB), XXXXXXX,       _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘     └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
-                                    XXXXXXX, SPACEDANCE,ENTDANCE,             RSA(KC_TAB),  ENTDANCE, XXXXXXX 
+                                    _______, _______, _______,                RSA(KC_TAB),  ENTDANCE, XXXXXXX 
                                 // └────────┴────────┴────────┘              └────────┴────────┴────────┘
+                                
   )
 
-  , [_ARROWS] = LAYOUT(
+  , [_ARR_NUM] = LAYOUT(
   //┌────────┬────────┬────────┬────────┬────────┬────────┐                          ┌────────┬────────┬────────┬────────┬────────┬────────┐   
      KC_BSPC, XXXXXXX, KC_END,  KC_UP,  KC_HOME, XXXXXXX,                             XXXXXXX,   KC_7,    KC_8,    KC_9,  XXXXXXX,  XXXXXXX,   
   //├────────┼────────┼────────┼────────┼────────┼────────┤                          ├────────┼────────┼────────┼────────┼────────┼────────┤   
@@ -172,6 +201,34 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘        └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘   
                                     XXXXXXX, SPACEDANCE,ENTDANCE,                _______,  ENTDANCE, XXXXXXX                                     
                                 // └────────┴────────┴────────┘                 └────────┴────────┴────────┘                                   
+  )
+
+  , [_NUMPAD] = LAYOUT(
+  //┌────────┬────────┬────────┬────────┬────────┬────────┐                           ┌────────┬────────┬────────┬────────┬────────┬────────┐   
+     QK_GESC, XXXXXXX,   KC_7,   KC_8,   KC_9,   XXXXXXX,                              XXXXXXX,   KC_7,    KC_8,    KC_9,  XXXXXXX,  XXXXXXX,   
+  //├────────┼────────┼────────┼────────┼────────┼────────┤                           ├────────┼────────┼────────┼────────┼────────┼────────┤   
+     KC_BSPC,  KC_0,    KC_4,    KC_5,    KC_6,   KC_EQL,                              XXXXXXX,   KC_4,    KC_5,    KC_6,    KC_0,   KC_BSPC,   
+  //├────────┼────────┼────────┼────────┼────────┼────────┤                           ├────────┼────────┼────────┼────────┼────────┼────────┤   
+     _______, SPCDOT,   KC_1,    KC_2,    KC_3,   XXXXXXX,                             XXXXXXX,   KC_1,    KC_2,    KC_3,  SPCDOT,  TMP_SYM,
+  //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐         ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤   
+     GO_HOME, XXXXXXX, XXXXXXX, KC_DOT,  KC_0,    RSA(KC_TAB), TMP_SYM,       _______, XXXXXXX, RSA(KC_TAB), KC_DOT, KC_0,  XXXXXXX, XXXXXXX,   
+  //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘         └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘   
+                                    XXXXXXX, SPACEDANCE,ENTDANCE,                 _______,  ENTDANCE, TMP_BRK                                 
+                                // └────────┴────────┴────────┘                  └────────┴────────┴────────┘                                   
+  )
+
+  , [_ARROWS] = LAYOUT(
+  //┌────────┬────────┬────────┬────────┬────────┬────────┐                      ┌────────┬────────┬────────┬────────┬────────┬────────┐
+     KC_BSPC, XXXXXXX, KC_END,  KC_UP,  KC_HOME, XXXXXXX,                         XXXXXXX, KC_HOME, KC_UP,   KC_END,  XXXXXXX, XXXXXXX, 
+  //├────────┼────────┼────────┼────────┼────────┼────────┤                      ├────────┼────────┼────────┼────────┼────────┼────────┤
+     SC_LAPO, SC_RSPC, KC_LEFT, KC_DOWN, KC_RIGHT,XXXXXXX,                        XXXXXXX, KC_LEFT, KC_DOWN, KC_RIGHT, SC_LSPO, SC_RAPC,
+  //├────────┼────────┼────────┼────────┼────────┼────────┤                      ├────────┼────────┼────────┼────────┼────────┼────────┤
+     _______, LSA(KC_TAB), XXXXXXX, XXXXXXX, XXXXXXX,  XXXXXXX,                   XXXXXXX,  XXXXXXX, XXXXXXX, XXXXXXX, LSA(KC_TAB), XXXXXXX, 
+  //├────────┼────────┼────────┼────────┼────────┼────────┼────────┐    ┌────────┼────────┼────────┼────────┼────────┼────────┼────────┤
+     GO_HOME, _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,           _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, 
+  //└────────┴────────┴────────┴───┬────┴───┬────┴───┬────┴───┬────┘    └───┬────┴───┬────┴───┬────┴───┬────┴────────┴────────┴────────┘
+                                    XXXXXXX, SPACEDANCE,ENTDANCE,              RSA(KC_TAB),  ENTDANCE, XXXXXXX 
+                                // └────────┴────────┴────────┘             └────────┴────────┴────────┘
   )
 
 //   , [_NUMPAD] = LAYOUT(
@@ -291,12 +348,52 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t* record) {
+    #ifdef ACHORDION_ENABLE
     if (!process_achordion(keycode, record)) { return false; }
+    #endif
     if (!process_layer_lock(keycode, record, LLOCK)) { return false; }
     if (!process_select_word(keycode, record, SELECT_WORD)) { return false; }
 
+    static uint8_t saved_mods   = 0;
+    // uint16_t       temp_keycode = keycode;
+
+
     tap_dance_action_t *action;
     switch (keycode) {
+         // https://github.com/walkerstop/qmk_firmware/blob/fanoe/keyboards/wheatfield/blocked65/keymaps/walker/keymap.c
+         case KC_TRNS:
+         case KC_NO:
+            /* Always cancel one-shot layer when another key gets pressed */
+            if (record->event.pressed && is_oneshot_layer_active())
+            clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
+            return true;
+        //  case RESET:
+        //     /* Don't allow reset from oneshot layer state */
+        //     if (record->event.pressed && is_oneshot_layer_active()){
+        //     clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
+        //     return false;
+        //     }	
+        //     return true;
+
+        // https://github.com/rpbaptist/qmk_firmware/blob/2eb9f227c10a242996dba746b8a2b9ed2edd315c/keyboards/crkbd/keymaps/rpbaptist/keymap.c#L503
+         case BSP_DEL:
+            if (record->event.pressed) {
+                saved_mods = get_mods();
+
+                if (saved_mods) {  // One shift pressed
+                    del_mods(saved_mods); // Remove any Shifts present
+                    register_code(KC_DEL);
+                    add_mods(saved_mods); // Add shifts again
+                } else {
+                    register_code(KC_BSPC);
+                }
+            } else {
+                unregister_code(KC_DEL);
+                unregister_code(KC_BSPC);
+            }
+            return false;
+
+
          case TD(CT_KTAB):  // list all tap dance keycodes with tap-hold configurations
              action = &tap_dance_actions[QK_TAP_DANCE_GET_INDEX(keycode)];
              if (!record->event.pressed && action->state.count && !action->state.finished) {
@@ -322,37 +419,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t* record) {
                  tap_code16(tap_hold->tap);
              }
       
-         // https://github.com/walkerstop/qmk_firmware/blob/fanoe/keyboards/wheatfield/blocked65/keymaps/walker/keymap.c
-         case KC_TRNS:
-         case KC_NO:
-            /* Always cancel one-shot layer when another key gets pressed */
-            if (record->event.pressed && is_oneshot_layer_active())
-            clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
-            return true;
-         case RESET:
-            /* Don't allow reset from oneshot layer state */
-            if (record->event.pressed && is_oneshot_layer_active()){
-            clear_oneshot_layer_state(ONESHOT_OTHER_KEY_PRESSED);
-            return false;
-            }	
-            return true;
 
-         case BSP_DEL:
-            if (record->event.pressed) {
-                saved_mods = get_mods();
-
-                if (saved_mods) {  // One shift pressed
-                    del_mods(saved_mods); // Remove any Shifts present
-                    register_code(KC_DEL);
-                    add_mods(saved_mods); // Add shifts again
-                } else {
-                    register_code(KC_BSPC);
-                }
-            } else {
-                unregister_code(KC_DEL);
-                unregister_code(KC_BSPC);
-            }
-            return false;
 
          default:
             return true;
@@ -377,8 +444,6 @@ void matrix_scan_user(void) {
 /*
 Define tap dances
 */
-
-
 // TD_CXPZS: Copy, Cut, Paste, Save, Undo, Redo
 static td_tap_t cxpzs_state = {
     .is_press_action = true,
@@ -644,6 +709,153 @@ void senterc_reset(tap_dance_state_t *state, void *user_data) {
     senterc_state.state = TD_NONE;
 }
 
+
+// K_TAB
+static td_tap_t  k_tab_state = {  
+// Create an instance of 'td_tap_t' for this tap dance.
+    .is_press_action = true,
+    .state = TD_NONE
+};
+void k_tab_finished(tap_dance_state_t *state, void *user_data) {
+    k_tab_state.state = cur_dance(state);
+    switch (k_tab_state.state) {
+        case TD_SINGLE_TAP: register_code16(KC_K); break;  
+        case TD_SINGLE_HOLD: register_code16(KC_TAB); break;  
+        // case TD_DOUBLE_TAP: register_code16(KC_SPACE); break;  
+        // case TD_DOUBLE_HOLD: register_code16(LSFT(KC_ENTER)); break;  
+        // // Last case is for fast typing. Assuming your key is `f`:
+        // // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
+        // // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
+        // case TD_DOUBLE_SINGLE_TAP: tap_code16(KC_ENTER); register_code16(KC_ENTER); break;
+        // case TD_TRIPLE_TAP: register_code16(s_undo); break;  
+        // case TD_TRIPLE_HOLD: register_code16(MO(_ARROWS)); break;  
+        default: break;
+    }
+}
+void k_tab_reset(tap_dance_state_t *state, void *user_data) {
+    switch (k_tab_state.state) {
+        case TD_SINGLE_TAP: unregister_code16(KC_K); break;
+        case TD_SINGLE_HOLD: unregister_code16(KC_TAB); break;
+        // case TD_DOUBLE_TAP: unregister_code16(KC_SPACE); break;
+        // case TD_DOUBLE_HOLD: unregister_code16(LSFT(KC_ENTER)); break;
+        // case TD_DOUBLE_SINGLE_TAP: unregister_code16(KC_ENTER); break;
+        // case TD_TRIPLE_TAP: unregister_code16(s_undo); break;
+        // case TD_TRIPLE_HOLD: unregister_code16(MO(_ARROWS)); break;
+        default: break;
+    }
+    k_tab_state.state = TD_NONE;
+}
+
+// M_TAB
+static td_tap_t  m_tab_state = {  
+// Create an instance of 'td_tap_t' for this tap dance.
+    .is_press_action = true,
+    .state = TD_NONE
+};
+void m_tab_finished(tap_dance_state_t *state, void *user_data) {
+    m_tab_state.state = cur_dance(state);
+    switch (m_tab_state.state) {
+        case TD_SINGLE_TAP: register_code16(KC_M); break;  
+        case TD_SINGLE_HOLD: register_code16(KC_TAB); break;  
+        // case TD_DOUBLE_TAP: register_code16(KC_SPACE); break;  
+        // case TD_DOUBLE_HOLD: register_code16(LSFT(KC_ENTER)); break;  
+        // // Last case is for fast typing. Assuming your key is `f`:
+        // // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
+        // // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
+        // case TD_DOUBLE_SINGLE_TAP: tap_code16(KC_ENTER); register_code16(KC_ENTER); break;
+        // case TD_TRIPLE_TAP: register_code16(s_undo); break;  
+        // case TD_TRIPLE_HOLD: register_code16(MO(_ARROWS)); break;  
+        default: break;
+    }
+}
+void m_tab_reset(tap_dance_state_t *state, void *user_data) {
+    switch (m_tab_state.state) {
+        case TD_SINGLE_TAP: unregister_code16(KC_M); break;
+        case TD_SINGLE_HOLD: unregister_code16(KC_TAB); break;
+        // case TD_DOUBLE_TAP: unregister_code16(KC_SPACE); break;
+        // case TD_DOUBLE_HOLD: unregister_code16(LSFT(KC_ENTER)); break;
+        // case TD_DOUBLE_SINGLE_TAP: unregister_code16(KC_ENTER); break;
+        // case TD_TRIPLE_TAP: unregister_code16(s_undo); break;
+        // case TD_TRIPLE_HOLD: unregister_code16(MO(_ARROWS)); break;
+        default: break;
+    }
+    m_tab_state.state = TD_NONE;
+}
+
+// X_ESC
+static td_tap_t  x_esc_state = {  
+// Create an instance of 'td_tap_t' for this tap dance.
+    .is_press_action = true,
+    .state = TD_NONE
+};
+void x_esc_finished(tap_dance_state_t *state, void *user_data) {
+    x_esc_state.state = cur_dance(state);
+    switch (x_esc_state.state) {
+        case TD_SINGLE_TAP: register_code16(KC_X); break;  
+        case TD_SINGLE_HOLD: register_code16(KC_ESC); break;  
+        // case TD_DOUBLE_TAP: register_code16(KC_SPACE); break;  
+        // case TD_DOUBLE_HOLD: register_code16(LSFT(KC_ENTER)); break;  
+        // // Last case is for fast typing. Assuming your key is `f`:
+        // // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
+        // // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
+        // case TD_DOUBLE_SINGLE_TAP: tap_code16(KC_ENTER); register_code16(KC_ENTER); break;
+        // case TD_TRIPLE_TAP: register_code16(s_undo); break;  
+        // case TD_TRIPLE_HOLD: register_code16(MO(_ARROWS)); break;  
+        default: break;
+    }
+}
+void x_esc_reset(tap_dance_state_t *state, void *user_data) {
+    switch (x_esc_state.state) {
+        case TD_SINGLE_TAP: unregister_code16(KC_X); break;
+        case TD_SINGLE_HOLD: unregister_code16(KC_ESC); break;
+        // case TD_DOUBLE_TAP: unregister_code16(KC_SPACE); break;
+        // case TD_DOUBLE_HOLD: unregister_code16(LSFT(KC_ENTER)); break;
+        // case TD_DOUBLE_SINGLE_TAP: unregister_code16(KC_ENTER); break;
+        // case TD_TRIPLE_TAP: unregister_code16(s_undo); break;
+        // case TD_TRIPLE_HOLD: unregister_code16(MO(_ARROWS)); break;
+        default: break;
+    }
+    x_esc_state.state = TD_NONE;
+}
+
+// B_ESC
+static td_tap_t  b_esc_state = {  
+// Create an instance of 'td_tap_t' for this tap dance.
+    .is_press_action = true,
+    .state = TD_NONE
+};
+void b_esc_finished(tap_dance_state_t *state, void *user_data) {
+    b_esc_state.state = cur_dance(state);
+    switch (b_esc_state.state) {
+        case TD_SINGLE_TAP: register_code16(KC_B); break;  
+        case TD_SINGLE_HOLD: register_code16(KC_ESC); break;  
+        // case TD_DOUBLE_TAP: register_code16(KC_SPACE); break;  
+        // case TD_DOUBLE_HOLD: register_code16(LSFT(KC_ENTER)); break;  
+        // // Last case is for fast typing. Assuming your key is `f`:
+        // // For example, when typing the word `buffer`, and you want to make sure that you send `ff` and not `Esc`.
+        // // In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
+        // case TD_DOUBLE_SINGLE_TAP: tap_code16(KC_ENTER); register_code16(KC_ENTER); break;
+        // case TD_TRIPLE_TAP: register_code16(s_undo); break;  
+        // case TD_TRIPLE_HOLD: register_code16(MO(_ARROWS)); break;  
+        default: break;
+    }
+}
+void b_esc_reset(tap_dance_state_t *state, void *user_data) {
+    switch (b_esc_state.state) {
+        case TD_SINGLE_TAP: unregister_code16(KC_B); break;
+        case TD_SINGLE_HOLD: unregister_code16(KC_ESC); break;
+        // case TD_DOUBLE_TAP: unregister_code16(KC_SPACE); break;
+        // case TD_DOUBLE_HOLD: unregister_code16(LSFT(KC_ENTER)); break;
+        // case TD_DOUBLE_SINGLE_TAP: unregister_code16(KC_ENTER); break;
+        // case TD_TRIPLE_TAP: unregister_code16(s_undo); break;
+        // case TD_TRIPLE_HOLD: unregister_code16(MO(_ARROWS)); break;
+        default: break;
+    }
+    b_esc_state.state = TD_NONE;
+}
+
+
+// // ALT_OSL1: Shifted dvorak on hold, enter on tap. shift-enter on double tap.
 // static tap osltapdance_state = {
 //   .is_press_action = true,
 //   .state = 0
@@ -661,7 +873,6 @@ void senterc_reset(tap_dance_state_t *state, void *user_data) {
 //     //In order to type `ff` when typing fast, the next character will have to be hit within the `TAPPING_TERM`, which by default is 200ms.
 //   }
 // }
-
 // void osl_tapdance_reset (qk_tap_dance_state_t *state, void *user_data) {
 //   switch (osltapdance_state.state) {
 //     case SINGLE_TAP: break;
@@ -682,8 +893,6 @@ void senterc_reset(tap_dance_state_t *state, void *user_data) {
 /*
 Define tap dance actions 
 */
-
-
 // declare tap dance actions
 tap_dance_action_t tap_dance_actions[] = {
 
@@ -720,9 +929,15 @@ tap_dance_action_t tap_dance_actions[] = {
 
     , [TD_SSPACEC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, sspacec_finished, sspacec_reset)
     , [TD_SENTERC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, senterc_finished, senterc_reset)
+    
+    
+    , [TD_K_TAB] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, k_tab_finished, k_tab_reset)
+    , [TD_X_ESC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, x_esc_finished, x_esc_reset)
+    , [TD_B_ESC] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, b_esc_finished, b_esc_reset)
+    , [TD_M_TAB] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, m_tab_finished, m_tab_reset)
 
-
-   //  , [ALT_OSL1]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, osl_tapdance_finished, osl_tapdance_reset)
+    // one-shot tap dances
+    // , [ALT_OSL1]  = ACTION_TAP_DANCE_FN_ADVANCED(NULL, osl_tapdance_finished, osl_tapdance_reset)
 
 
 };

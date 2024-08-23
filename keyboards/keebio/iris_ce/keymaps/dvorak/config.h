@@ -13,6 +13,7 @@
 #define TAPPING_TERM 150
 // Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
 #define QUICK_TAP_TERM 0
+#define TAPPING_TOGGLE 2
 
 
 #define LAYER_LOCK_IDLE_TIMEOUT 60000  // Turn off after 60 seconds.
@@ -29,7 +30,7 @@
 
 #define SELECT_WORD_TIMEOUT 2000  // When idle, clear state after 2 seconds.
 
-#define PERMISSIVE_HOLD
+// #define PERMISSIVE_HOLD
 
 
 

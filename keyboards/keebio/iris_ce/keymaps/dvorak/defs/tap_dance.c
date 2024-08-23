@@ -22,9 +22,9 @@ typedef enum {
 
 // Tap-Hold tap dance definitions
 typedef struct {
-    uint16_t tap;
-    uint16_t hold;
-    uint16_t held;
+    uint8_t tap;
+    uint8_t hold;
+    uint8_t held;
 } tap_dance_tap_hold_t;
 
 // declare new structure for tap dance states
@@ -53,10 +53,10 @@ void tap_dance_tap_hold_finished(tap_dance_state_t *state, void *user_data) {
             && !state->interrupted
 #endif
         ) {
-            register_code16(tap_hold->hold);
+            register_code(tap_hold->hold);
             tap_hold->held = tap_hold->hold;
         } else {
-            register_code16(tap_hold->tap);
+            register_code(tap_hold->tap);
             tap_hold->held = tap_hold->tap;
         }
     }
@@ -66,7 +66,7 @@ void tap_dance_tap_hold_reset(tap_dance_state_t *state, void *user_data) {
     tap_dance_tap_hold_t *tap_hold = (tap_dance_tap_hold_t *)user_data;
 
     if (tap_hold->held) {
-        unregister_code16(tap_hold->held);
+        unregister_code(tap_hold->held);
         tap_hold->held = 0;
     }
 }
