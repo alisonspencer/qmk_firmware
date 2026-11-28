@@ -7,6 +7,41 @@
 #undef TAPPING_TERM
 #define TAPPING_TERM 224
 
+// Home row mod misfire protection. All three are core QMK (no extra code):
+// https://docs.qmk.fm/tap_hold
+//
+// Chordal Hold: a tap-hold key pressed together with another key on the SAME
+// hand is settled as a tap, so rolls like "a"+"o" type "ao" instead of Shift+O.
+// Handedness is set by chordal_hold_layout in keymap.c.
+// https://docs.qmk.fm/tap_hold#chordal-hold
+#define CHORDAL_HOLD
+// Permissive Hold: for OPPOSITE-hand chords (the case Chordal Hold leaves
+// alone), hold the mod as soon as the other key is pressed and released while
+// the tap-hold key is still down. Chordal Hold is designed to pair with this.
+// Watch for: this also applies to the TH_* keys, e.g. holding TH_Q_ESC and
+// tapping a right-hand key inside it gives Esc+key, not "q" + key.
+// https://docs.qmk.fm/tap_hold#permissive-hold
+#define PERMISSIVE_HOLD
+// Flow Tap: a tap-hold key pressed within FLOW_TAP_TERM ms of the previous
+// letter key always taps, so mods can't fire mid-word during fast typing.
+// Which keys count as letters: is_flow_tap_key() in keymap.c.
+// https://docs.qmk.fm/tap_hold#flow-tap
+#define FLOW_TAP_TERM 150
+
+// Combos: https://docs.qmk.fm/features/combo
+// All keys of a combo must be pressed within COMBO_TERM ms (default 50).
+#define COMBO_TERM 35
+// Start the COMBO_TERM timer on the first key and don't extend it on later
+// keys, so the whole chord really has to land within COMBO_TERM.
+// https://docs.qmk.fm/features/combo#combo-strict-timer
+#define COMBO_STRICT_TIMER
+// Not a QMK option: used by the typing-streak guard in keymap.c. Dvorak-layer
+// combos only fire after a pause of at least this many ms since the last key.
+// Watch for: a combo started right after typing (e.g. Caps Word straight after
+// a space) gets blocked. Lower this if that happens; raise it if rolls still
+// trigger combos.
+#define COMBO_IDLE_MS 150
+
 #define ONESHOT_TAP_TOGGLE 3
 
 #undef ONESHOT_TIMEOUT

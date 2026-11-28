@@ -2,10 +2,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
-#include "version.h"
-#ifndef ZSA_SAFE_RANGE
-#define ZSA_SAFE_RANGE SAFE_RANGE
-#endif
 
 enum layers {
   _DVORAK,
@@ -22,12 +18,6 @@ enum layers {
   _FUNCTION_KEYS,
   _SHORTCUTS,
 };
-
-enum custom_keycodes {
-  RGB_SLD = ZSA_SAFE_RANGE,
-};
-
-
 
 enum tap_dance_codes {
   DANCE_NUM_FN,          // hold numpad layer, double-hold F-keys layer
@@ -72,6 +62,7 @@ enum tap_dance_codes {
   DANCE_SFT_ALT,         // hold LShift, double-hold LAlt
   DANCE_F6_GUI,          // tap F6, hold LGui, double-tap F6, double-hold Gui+F6
   DANCE_SFT_CTL,         // hold LShift, double-hold LCtrl
+  DANCE_COUNT,           // keep last: number of tap dances
 };
 
 #define TD_NUM_FN         TD(DANCE_NUM_FN)
@@ -119,7 +110,7 @@ enum tap_dance_codes {
 
 
 // Tap/hold keys: TH_<tap>_<hold>. The LT() layer number is only a unique tag,
-// it is not a layer -- the real tap/hold behaviour lives in process_record_user().
+// it is not a layer -- the real tap/hold behaviour lives in the tap_holds table.
 #define TH_Q_ESC          LT(2, KC_V)    // tap Q, hold Esc
 #define TH_K_TAB          LT(5, KC_F10)  // tap K, hold TAB
 #define TH_X_ESC          LT(5, KC_F16)  // tap X, hold Esc
@@ -373,6 +364,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 };
 
+// Chordal Hold handedness: which hand each key belongs to. A tap-hold key only
+// settles as held when the next key is on the other hand ('L' vs 'R'). Thumb
+// keys are '*' so they can hold together with keys on either hand.
+// https://docs.qmk.fm/tap_hold#chordal-hold-handedness
+const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM = LAYOUT(
+  'L', 'L', 'L', 'L', 'L', 'L',                'R', 'R', 'R', 'R', 'R', 'R',
+  'L', 'L', 'L', 'L', 'L', 'L',                'R', 'R', 'R', 'R', 'R', 'R',
+  'L', 'L', 'L', 'L', 'L', 'L',                'R', 'R', 'R', 'R', 'R', 'R',
+  'L', 'L', 'L', 'L', 'L', 'L', 'L',      'R', 'R', 'R', 'R', 'R', 'R', 'R',
+                      '*', '*', '*',      '*', '*', '*'
+);
+
 
 enum combos {
   COMBO_GUI_SLASH,      // Q+J          -> Gui+/
@@ -408,6 +411,27 @@ combo_t key_combos[] = {
     [COMBO_NUM_BRACKETS]  = COMBO(num_brackets_combo, OSL(_BRACKETS)),
 };
 
+// Typing-streak guard for the letter combos (like Flow Tap, but for combos).
+// Rolls such as "cr" in "create" or "gr" in "program" can land inside
+// COMBO_TERM, so a Dvorak combo only fires if there was a pause of at least
+// COMBO_IDLE_MS before its first key. Keys pressed within COMBO_TERM of each
+// other count as one chord and share the pause measured before the first one.
+// pre_process_record_user() runs before combo processing, in real press order.
+static uint32_t last_press_time  = 0;
+static bool     combo_after_idle = true;
+
+bool pre_process_record_user(uint16_t keycode, keyrecord_t *record) {
+  if (record->event.pressed) {
+    uint32_t now = timer_read32();
+    uint32_t gap = TIMER_DIFF_32(now, last_press_time);
+    if (gap > COMBO_TERM) {
+      combo_after_idle = gap >= COMBO_IDLE_MS;
+    }
+    last_press_time = now;
+  }
+  return true;
+}
+
 // Combos only fire on the layer they were designed for, so fast key-mashing on
 // the QWERTY/gaming layers (or anywhere else) can't trigger them by accident.
 bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode, keyrecord_t *record) {
@@ -417,7 +441,7 @@ bool combo_should_trigger(uint16_t combo_index, combo_t *combo, uint16_t keycode
     case COMBO_NUM_BRACKETS:
       return get_highest_layer(layer_state) == _NUMPAD;
     default:
-      return get_highest_layer(layer_state) == _DVORAK;
+      return get_highest_layer(layer_state) == _DVORAK && combo_after_idle;
   }
 }
 
@@ -429,10 +453,6 @@ RGB hsv_to_rgb_with_value(HSV hsv) {
   RGB rgb = hsv_to_rgb( hsv );
   float f = (float)rgb_matrix_config.hsv.v / UINT8_MAX;
   return (RGB){ f * rgb.r, f * rgb.g, f * rgb.b };
-}
-
-void keyboard_post_init_user(void) {
-  rgb_matrix_enable();
 }
 
 // Per-layer LED colors. Each layer is 68 {hue, sat, val} entries (0-255 each),
@@ -497,7 +517,7 @@ void set_layer_color(int layer) {
 // SPLIT_LAYER_STATE_ENABLE is set in config.h -- without it the right half stays
 // on the default animation. Only the highest active layer is checked.
 bool rgb_matrix_indicators_user(void) {
-  switch (biton32(layer_state)) {
+  switch (get_highest_layer(layer_state)) {
     case _LEFT_HAND:
       set_layer_color(_LEFT_HAND);
       break;
@@ -549,7 +569,7 @@ enum {
     MORE_TAPS            
 };
 
-static tap dance_state[42];
+static tap dance_state[DANCE_COUNT];
 
 uint8_t dance_step(tap_dance_state_t *state);
 
@@ -2068,7 +2088,124 @@ tap_dance_action_t tap_dance_actions[] = {
         [DANCE_SFT_CTL] = ACTION_TAP_DANCE_FN_ADVANCED(NULL, dance_sft_ctl_finished, dance_sft_ctl_reset),
 };
 
+// Tap/hold table: what each TH_* key sends on tap and on hold. A TO(layer)
+// entry moves to that layer instead of sending a key.
+typedef struct {
+  uint16_t key;
+  uint16_t tap;
+  uint16_t hold;
+} tap_hold_t;
+
+static const tap_hold_t tap_holds[] = {
+  {TH_Q_ESC,         KC_Q,                KC_ESCAPE},
+  {TH_K_TAB,         KC_K,                KC_TAB},
+  {TH_X_ESC,         KC_X,                KC_ESCAPE},
+  {TH_ESC_TAB,       KC_ESCAPE,           KC_TAB},
+  {TH_SLSH_BSLS,     KC_SLASH,            KC_BSLS},
+  {TH_MINS_UNDS,     KC_MINUS,            KC_UNDS},
+  {TH_B_ESC,         KC_B,                KC_ESCAPE},
+  {TH_M_TAB,         KC_M,                KC_TAB},
+  {TH_V_ESC,         KC_V,                KC_ESCAPE},
+  {TH_CAP_A_LSFT,    LSFT(KC_A),          KC_LEFT_SHIFT},
+  {TH_CAP_O_LCTL,    LSFT(KC_O),          KC_LEFT_CTRL},
+  {TH_CAP_E_LALT,    LSFT(KC_E),          KC_LEFT_ALT},
+  {TH_CAP_U_LGUI,    LSFT(KC_U),          KC_LEFT_GUI},
+  {TH_CAP_H_RGUI,    LSFT(KC_H),          KC_RIGHT_GUI},
+  {TH_CAP_T_LALT,    LSFT(KC_T),          KC_LEFT_ALT},
+  {TH_CAP_N_RCTL,    LSFT(KC_N),          KC_RIGHT_CTRL},
+  {TH_CAP_S_RSFT,    LSFT(KC_S),          KC_RIGHT_SHIFT},
+  {TH_QUOT_L,        KC_QUOTE,            KC_L},
+  {TH_COMM_R,        KC_COMMA,            KC_R},
+  {TH_DOT_C,         KC_DOT,              KC_C},
+  {TH_P_G,           KC_P,                KC_G},
+  {TH_Y_F,           KC_Y,                KC_F},
+  {TH_I_D,           KC_I,                KC_D},
+  {TH_Q_V,           KC_Q,                KC_V},
+  {TH_J_W,           KC_J,                KC_W},
+  {TH_BASE_MEDIA,    TO(_DVORAK),         TO(_MEDIA)},
+  {TH_ENT_TAB,       KC_ENTER,            KC_TAB},
+  {TH_8_DOT,         KC_8,                KC_DOT},
+  {TH_COMM_COLN,     KC_COMMA,            KC_COLN},
+  {TH_1_DOT,         KC_1,                KC_DOT},
+  {TH_2_PLUS,        KC_2,                KC_PLUS},
+  {TH_3_TAB,         KC_3,                KC_TAB},
+  {TH_COMM_SPC,      KC_COMMA,            KC_SPACE},
+  {TH_0_DOT,         KC_0,                KC_DOT},
+  {TH_7_LBRC,        KC_7,                KC_LBRC},
+  {TH_9_RBRC,        KC_9,                KC_RBRC},
+  {TH_1_TAB,         KC_1,                KC_TAB},
+  {TH_SHARROWS_ESC,  TO(_SHIFTED_ARROWS), KC_ESCAPE},
+  {TH_ARROWS_ESC,    TO(_ARROWS),         KC_ESCAPE},
+  {TH_BASE_LGUI,     TO(_DVORAK),         KC_LEFT_GUI},
+  {TH_BASE_RGUI,     TO(_DVORAK),         KC_RIGHT_GUI},
+  {TH_QUES_TAB,      KC_QUES,             KC_TAB},
+  {TH_BSLS_ESC,      KC_BSLS,             KC_ESCAPE},
+  {TH_HASH_TAB,      KC_HASH,             KC_TAB},
+  {TH_GRV_BASE,      KC_GRAVE,            TO(_DVORAK)},
+  {TH_SPC_TAB,       KC_SPACE,            KC_TAB},
+  {TH_LCBR_LABK,     KC_LCBR,             KC_LABK},
+  {TH_RCBR_RABK,     KC_RCBR,             KC_RABK},
+  {TH_HASH_ESC,      KC_HASH,             KC_ESCAPE},
+  {TH_LPRN_LCBR,     KC_LPRN,             KC_LCBR},
+  {TH_RPRN_RCBR,     KC_RPRN,             KC_RCBR},
+  {TH_RABK_LABK,     KC_RABK,             KC_LABK},
+  {TH_F12_ESC,       KC_F12,              KC_ESCAPE},
+  {TH_NEWTAB_REOPEN, LGUI(KC_T),          LGUI(LSFT(KC_T))},
+  {TH_UNDO_REDO,     LGUI(KC_Z),          LGUI(LSFT(KC_Z))},
+};
+
+static const tap_hold_t *find_tap_hold(uint16_t keycode) {
+  for (uint8_t i = 0; i < ARRAY_SIZE(tap_holds); i++) {
+    if (tap_holds[i].key == keycode) {
+      return &tap_holds[i];
+    }
+  }
+  return NULL;
+}
+
+static void send_tap_hold_action(uint16_t action, bool pressed) {
+  if (IS_QK_TO(action)) {
+    if (pressed) {
+      layer_move(QK_TO_GET_LAYER(action));
+    }
+  } else if (pressed) {
+    register_code16(action);
+  } else {
+    unregister_code16(action);
+  }
+}
+
+// Flow Tap: which keys count as "typing". Same as QMK's default, except TH_*
+// keys are judged by what they really tap (their LT() keycode is only a tag).
+// https://docs.qmk.fm/tap_hold#is-flow-tap-key
+bool is_flow_tap_key(uint16_t keycode) {
+  if ((get_mods() & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
+    return false; // Disable Flow Tap on hotkeys.
+  }
+  const tap_hold_t *tap_hold = find_tap_hold(keycode);
+  keycode = tap_hold ? tap_hold->tap : get_tap_keycode(keycode);
+  if (IS_QK_MODS(keycode)) {
+    keycode = QK_MODS_GET_BASIC_KEYCODE(keycode); // e.g. LSFT(KC_A) on the shift layer
+  }
+  switch (keycode) {
+    case KC_SPC:
+    case KC_A ... KC_Z:
+    case KC_DOT:
+    case KC_COMM:
+    case KC_SCLN:
+    case KC_SLSH:
+      return true;
+  }
+  return false;
+}
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  const tap_hold_t *tap_hold = find_tap_hold(keycode);
+  if (tap_hold) {
+    send_tap_hold_action(record->tap.count > 0 ? tap_hold->tap : tap_hold->hold, record->event.pressed);
+    return false;
+  }
+
   switch (keycode) {
   case QK_MODS ... QK_MODS_MAX:
     // Mouse and consumer keys (volume, media) with modifiers work inconsistently across operating systems,
@@ -2086,837 +2223,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
     }
     break;
-
-    case TH_Q_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_Q);
-        } else {
-          unregister_code16(KC_Q);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_K_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_K);
-        } else {
-          unregister_code16(KC_K);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_X_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_X);
-        } else {
-          unregister_code16(KC_X);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_ESC_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_SLSH_BSLS:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_SLASH);
-        } else {
-          unregister_code16(KC_SLASH);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_BSLS);
-        } else {
-          unregister_code16(KC_BSLS);
-        }  
-      }  
-      return false;
-    case TH_MINS_UNDS:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_MINUS);
-        } else {
-          unregister_code16(KC_MINUS);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_UNDS);
-        } else {
-          unregister_code16(KC_UNDS);
-        }  
-      }  
-      return false;
-    case TH_B_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_B);
-        } else {
-          unregister_code16(KC_B);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_M_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_M);
-        } else {
-          unregister_code16(KC_M);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_V_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_V);
-        } else {
-          unregister_code16(KC_V);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_CAP_A_LSFT:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LSFT(KC_A));
-        } else {
-          unregister_code16(LSFT(KC_A));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_SHIFT);
-        } else {
-          unregister_code16(KC_LEFT_SHIFT);
-        }  
-      }  
-      return false;
-    case TH_CAP_O_LCTL:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LSFT(KC_O));
-        } else {
-          unregister_code16(LSFT(KC_O));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_CTRL);
-        } else {
-          unregister_code16(KC_LEFT_CTRL);
-        }  
-      }  
-      return false;
-    case TH_CAP_E_LALT:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LSFT(KC_E));
-        } else {
-          unregister_code16(LSFT(KC_E));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_ALT);
-        } else {
-          unregister_code16(KC_LEFT_ALT);
-        }  
-      }  
-      return false;
-    case TH_CAP_U_LGUI:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LSFT(KC_U));
-        } else {
-          unregister_code16(LSFT(KC_U));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_GUI);
-        } else {
-          unregister_code16(KC_LEFT_GUI);
-        }  
-      }  
-      return false;
-    case TH_CAP_H_RGUI:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LSFT(KC_H));
-        } else {
-          unregister_code16(LSFT(KC_H));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_RIGHT_GUI);
-        } else {
-          unregister_code16(KC_RIGHT_GUI);
-        }  
-      }  
-      return false;
-    case TH_CAP_T_LALT:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LSFT(KC_T));
-        } else {
-          unregister_code16(LSFT(KC_T));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_ALT);
-        } else {
-          unregister_code16(KC_LEFT_ALT);
-        }  
-      }  
-      return false;
-    case TH_CAP_N_RCTL:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LSFT(KC_N));
-        } else {
-          unregister_code16(LSFT(KC_N));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_RIGHT_CTRL);
-        } else {
-          unregister_code16(KC_RIGHT_CTRL);
-        }  
-      }  
-      return false;
-    case TH_CAP_S_RSFT:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LSFT(KC_S));
-        } else {
-          unregister_code16(LSFT(KC_S));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_RIGHT_SHIFT);
-        } else {
-          unregister_code16(KC_RIGHT_SHIFT);
-        }  
-      }  
-      return false;
-    case TH_QUOT_L:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_QUOTE);
-        } else {
-          unregister_code16(KC_QUOTE);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_L);
-        } else {
-          unregister_code16(KC_L);
-        }  
-      }  
-      return false;
-    case TH_COMM_R:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_COMMA);
-        } else {
-          unregister_code16(KC_COMMA);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_R);
-        } else {
-          unregister_code16(KC_R);
-        }  
-      }  
-      return false;
-    case TH_DOT_C:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_DOT);
-        } else {
-          unregister_code16(KC_DOT);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_C);
-        } else {
-          unregister_code16(KC_C);
-        }  
-      }  
-      return false;
-    case TH_P_G:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_P);
-        } else {
-          unregister_code16(KC_P);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_G);
-        } else {
-          unregister_code16(KC_G);
-        }  
-      }  
-      return false;
-    case TH_Y_F:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_Y);
-        } else {
-          unregister_code16(KC_Y);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_F);
-        } else {
-          unregister_code16(KC_F);
-        }  
-      }  
-      return false;
-    case TH_I_D:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_I);
-        } else {
-          unregister_code16(KC_I);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_D);
-        } else {
-          unregister_code16(KC_D);
-        }  
-      }  
-      return false;
-    case TH_Q_V:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_Q);
-        } else {
-          unregister_code16(KC_Q);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_V);
-        } else {
-          unregister_code16(KC_V);
-        }  
-      }  
-      return false;
-    case TH_J_W:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_J);
-        } else {
-          unregister_code16(KC_J);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_W);
-        } else {
-          unregister_code16(KC_W);
-        }  
-      }  
-      return false;
-    case TH_BASE_MEDIA:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          layer_move(_DVORAK);
-        } else {
-          layer_move(_DVORAK);
-        }
-      } else {
-        if (record->event.pressed) {
-          layer_move(_MEDIA);
-        } else {
-          layer_move(_MEDIA);
-        }  
-      }  
-      return false;
-    case TH_ENT_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_ENTER);
-        } else {
-          unregister_code16(KC_ENTER);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_8_DOT:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_8);
-        } else {
-          unregister_code16(KC_8);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_DOT);
-        } else {
-          unregister_code16(KC_DOT);
-        }  
-      }  
-      return false;
-    case TH_COMM_COLN:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_COMMA);
-        } else {
-          unregister_code16(KC_COMMA);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_COLN);
-        } else {
-          unregister_code16(KC_COLN);
-        }  
-      }  
-      return false;
-    case TH_1_DOT:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_1);
-        } else {
-          unregister_code16(KC_1);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_DOT);
-        } else {
-          unregister_code16(KC_DOT);
-        }  
-      }  
-      return false;
-    case TH_2_PLUS:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_2);
-        } else {
-          unregister_code16(KC_2);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_PLUS);
-        } else {
-          unregister_code16(KC_PLUS);
-        }  
-      }  
-      return false;
-    case TH_3_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_3);
-        } else {
-          unregister_code16(KC_3);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_COMM_SPC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_COMMA);
-        } else {
-          unregister_code16(KC_COMMA);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_SPACE);
-        } else {
-          unregister_code16(KC_SPACE);
-        }  
-      }  
-      return false;
-    case TH_0_DOT:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_0);
-        } else {
-          unregister_code16(KC_0);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_DOT);
-        } else {
-          unregister_code16(KC_DOT);
-        }  
-      }  
-      return false;
-    case TH_7_LBRC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_7);
-        } else {
-          unregister_code16(KC_7);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LBRC);
-        } else {
-          unregister_code16(KC_LBRC);
-        }  
-      }  
-      return false;
-    case TH_9_RBRC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_9);
-        } else {
-          unregister_code16(KC_9);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_RBRC);
-        } else {
-          unregister_code16(KC_RBRC);
-        }  
-      }  
-      return false;
-    case TH_1_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_1);
-        } else {
-          unregister_code16(KC_1);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_SHARROWS_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          layer_move(_SHIFTED_ARROWS);
-        } else {
-          layer_move(_SHIFTED_ARROWS);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_ARROWS_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          layer_move(_ARROWS);
-        } else {
-          layer_move(_ARROWS);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_BASE_LGUI:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          layer_move(_DVORAK);
-        } else {
-          layer_move(_DVORAK);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LEFT_GUI);
-        } else {
-          unregister_code16(KC_LEFT_GUI);
-        }  
-      }  
-      return false;
-    case TH_BASE_RGUI:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          layer_move(_DVORAK);
-        } else {
-          layer_move(_DVORAK);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_RIGHT_GUI);
-        } else {
-          unregister_code16(KC_RIGHT_GUI);
-        }  
-      }  
-      return false;
-    case TH_QUES_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_QUES);
-        } else {
-          unregister_code16(KC_QUES);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_BSLS_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_BSLS);
-        } else {
-          unregister_code16(KC_BSLS);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_HASH_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_HASH);
-        } else {
-          unregister_code16(KC_HASH);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_GRV_BASE:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_GRAVE);
-        } else {
-          unregister_code16(KC_GRAVE);
-        }
-      } else {
-        if (record->event.pressed) {
-          layer_move(_DVORAK);
-        } else {
-          layer_move(_DVORAK);
-        }  
-      }  
-      return false;
-    case TH_SPC_TAB:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_SPACE);
-        } else {
-          unregister_code16(KC_SPACE);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_TAB);
-        } else {
-          unregister_code16(KC_TAB);
-        }  
-      }  
-      return false;
-    case TH_LCBR_LABK:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_LCBR);
-        } else {
-          unregister_code16(KC_LCBR);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LABK);
-        } else {
-          unregister_code16(KC_LABK);
-        }  
-      }  
-      return false;
-    case TH_RCBR_RABK:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_RCBR);
-        } else {
-          unregister_code16(KC_RCBR);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_RABK);
-        } else {
-          unregister_code16(KC_RABK);
-        }  
-      }  
-      return false;
-    case TH_HASH_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_HASH);
-        } else {
-          unregister_code16(KC_HASH);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_LPRN_LCBR:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_LPRN);
-        } else {
-          unregister_code16(KC_LPRN);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LCBR);
-        } else {
-          unregister_code16(KC_LCBR);
-        }  
-      }  
-      return false;
-    case TH_RPRN_RCBR:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_RPRN);
-        } else {
-          unregister_code16(KC_RPRN);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_RCBR);
-        } else {
-          unregister_code16(KC_RCBR);
-        }  
-      }  
-      return false;
-    case TH_RABK_LABK:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_RABK);
-        } else {
-          unregister_code16(KC_RABK);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_LABK);
-        } else {
-          unregister_code16(KC_LABK);
-        }  
-      }  
-      return false;
-    case TH_F12_ESC:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(KC_F12);
-        } else {
-          unregister_code16(KC_F12);
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(KC_ESCAPE);
-        } else {
-          unregister_code16(KC_ESCAPE);
-        }  
-      }  
-      return false;
-    case TH_NEWTAB_REOPEN:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LGUI(KC_T));
-        } else {
-          unregister_code16(LGUI(KC_T));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(LGUI(LSFT(KC_T)));
-        } else {
-          unregister_code16(LGUI(LSFT(KC_T)));
-        }  
-      }  
-      return false;
-    case TH_UNDO_REDO:
-      if (record->tap.count > 0) {
-        if (record->event.pressed) {
-          register_code16(LGUI(KC_Z));
-        } else {
-          unregister_code16(LGUI(KC_Z));
-        }
-      } else {
-        if (record->event.pressed) {
-          register_code16(LGUI(LSFT(KC_Z)));
-        } else {
-          unregister_code16(LGUI(LSFT(KC_Z)));
-        }  
-      }  
-      return false;
-    case RGB_SLD:
-        if (record->event.pressed) {
-            rgb_matrix_mode(RGB_MATRIX_SOLID_COLOR);
-        }
-        return false;
   }
   return true;
 }
