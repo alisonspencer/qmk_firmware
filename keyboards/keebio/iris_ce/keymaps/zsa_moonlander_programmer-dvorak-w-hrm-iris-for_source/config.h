@@ -68,3 +68,7 @@
 #undef ENABLE_RGB_MATRIX_STARLIGHT_DUAL_HUE
 #undef ENABLE_RGB_MATRIX_STARLIGHT_DUAL_SAT
 #undef ENABLE_RGB_MATRIX_RIVERFLOW
+
+// Sync the active layer to the right half so per-layer LEDs work on both sides.
+#define SPLIT_LAYER_STATE_ENABLE
+
