@@ -14,7 +14,9 @@
 
 #define USB_SUSPEND_WAKEUP_DELAY 0
 #define LAYER_STATE_16BIT
-#define COMBO_COUNT 5
+#define COMBO_SHOULD_TRIGGER
+
+#define LAYER_LOCK_IDLE_TIMEOUT 60000  // Turn off after 60 seconds.
 
 #define RGB_MATRIX_STARTUP_SPD 60
 
